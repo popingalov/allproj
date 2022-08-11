@@ -10,7 +10,7 @@ export default function Statistic({ statistic, dopStat }) {
           const newValue = value[idx];
           return (
             <li key={elem}>
-              {elem}:{newValue}
+              {elem}: {newValue}
             </li>
           );
         })}

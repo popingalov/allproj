@@ -17,6 +17,8 @@ import FeedBack from './components/FeedBack';
 import Statistic from './components/Statistic';
 import PhoneBook from './components/PhoneBook';
 import PhoneList from './components/PhoneList';
+import Modal from './components/Modal';
+
 //
 const colorPickerOption = [
   { lable: 'red', color: '#F44336' },
@@ -38,10 +40,23 @@ class App extends Component {
       { id: 'id-3', text: 'Вчись', completed: false },
       { id: 'id-4', text: 'Не хочу', completed: false },
     ],
-    contacts: [{ name: 'alla', number: '+380889456356' }],
+    contacts: [],
     filterContacts: [],
     contactsFilter: '',
+    showModal: false,
   };
+  componentDidMount() {
+    const localStoreContacts = JSON.parse(localStorage.getItem('contacts'));
+    this.setState({
+      contacts: localStoreContacts || [],
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
 
   filterTodo = word => {
     const { todos } = this.state;
@@ -117,6 +132,10 @@ class App extends Component {
   submitPhone = e => {
     this.setState(prev => ({ contacts: [...prev.contacts, { ...e }] }));
   };
+
+  togleModal = () => {
+    this.setState(prev => ({ showModal: !prev.showModal }));
+  };
   render() {
     const {
       todos,
@@ -127,6 +146,7 @@ class App extends Component {
       contacts,
       contactsFilter,
       filterContacts,
+      showModal,
     } = this.state;
     const {
       formSubmit,
@@ -134,15 +154,26 @@ class App extends Component {
       handlerFeedBack,
       submitPhone,
       filterChangeBook,
+      togleModal,
     } = this;
     return (
       <Container>
-        <Filter filter={filter} filterChange={filterChange} />
+        <button type="button" onClick={togleModal}>
+          x
+        </button>
 
+        {showModal && (
+          <Modal togleModal={togleModal} styleName="testColor">
+            <button type="button" onClick={togleModal}>
+              X me{' '}
+            </button>
+          </Modal>
+        )}
+        <Filter filter={filter} filterChange={filterChange} />
         <PhoneBook submitPhone={submitPhone} contactsFilter={contactsFilter} />
         <PhoneList
           filterContacts={
-            filterContacts.length !== 0 ? filterContacts : contacts
+            filterContacts.length !== 0 || filter ? filterContacts : contacts
           }
         />
         <FeedBack
@@ -164,7 +195,6 @@ class App extends Component {
         <Alert text="Шеф все пропало" type="warning" />
         <Alert text="Шеф все пропало" type="error" />
         <ColorPicker optionColor={colorPickerOption} />
-
         <Section title="Топ недели">
           <PaintingList items={paintings} />
         </Section>
